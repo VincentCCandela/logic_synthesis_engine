@@ -1,6 +1,6 @@
 /*
 Implementation of the Quine–McCluskey algorithm
-
+AI was used for concept understanding, drafting the code, and error-checking the code, and setup of code runtimes
 */
 #include <algorithm>
 #include <cctype>

@@ -1,0 +1,19 @@
+.model mux2
+
+.inputs a b c
+.outputs f
+
+.names a b n1
+11 1
+
+.names a n3
+0 1
+
+.names n3 c n2
+11 1
+
+.names n1 n2 f
+1- 1
+-1 1
+
+.end

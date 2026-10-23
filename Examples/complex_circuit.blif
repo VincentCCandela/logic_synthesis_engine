@@ -1,0 +1,37 @@
+.model complex_circuit
+
+.inputs a b c d e f
+.outputs x y
+
+# x = (a AND b) OR (c AND d) OR (e AND f)
+.names a b n1
+11 1
+
+.names c d n2
+11 1
+
+.names e f n3
+11 1
+
+.names n1 n2 n3 x
+1-- 1
+-1- 1
+--1 1
+
+# y = (a OR b) AND (c OR d) AND (e OR f)
+.names a b n4
+1- 1
+-1 1
+
+.names c d n5
+1- 1
+-1 1
+
+.names e f n6
+1- 1
+-1 1
+
+.names n4 n5 n6 y
+111 1
+
+.end

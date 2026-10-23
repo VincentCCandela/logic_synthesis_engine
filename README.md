@@ -24,7 +24,7 @@ expression (one line on stdin)
 
 Representation: A product term is a `Cube` with two bit masks over the variables: `mask` marks which variables appear and `value` indicates their value (1 = plain, 0 = inverted) eg for variables `a b c`, `ab'` has mask `110` and value `100`. Variables are sorted alphabetically, with the first as the most significant bit and the last as bit 0. Therefore, a minterm is just an integer, and a cube covers minterm `m` when `(m & mask) == value`. This trick works because the mask will have less ones than m, and we check that the value of the cube is the exact same as the value of the minterm.
 
-Parser: The commandline parser is a recursive-descent evaluator with one function per grammar level. Instead of building a syntax tree, it evaluates the expression directly for each of the 2^n inputs to fill in the truth table. The 
+Parser: The commandline parser is a recursive-descent evaluator with one function per grammar level. Instead of building a syntax tree, it evaluates the expression directly for each of the 2^n inputs to fill in the truth table. The BLIF parser builds nodes by locating the ".name" directory and intepreting its behavior using the truth table below it. Output values are evaluated recursively to propagate determined inputs forward. Specifically, we store a (signal, value) map for all inputs, and compares inputs of nodes to values in the map. If the input is found (circuit inputs, or previously evaluated ones), we return; otherwise, we evaluate the node whose output is the unknown input. The overall truth table is constructed by evaluating the output of each input combination.
 
 NOTE: adjacent factors are ANDed
 
@@ -55,6 +55,7 @@ logic_synthesis_engine
   runtime_steps.txt: simplified demonstration of runtime commands
   README.md: this file
   .gitignore: no compile time and generated files allowed in git
+  Examples: contains example inputs
 ```
 
 ## Build, run and usage
@@ -114,7 +115,7 @@ For graphical circuit mode, pass in a BLIF file in the arguments
 ./lse Example/adder.blif
 ```
 
-The program follows the BLIF format convention. Yse the combinational `.names` format with `.model`, `.inputs`, `.outputs`, truth-table rows, and `.end`. For example:
+The program follows the BLIF format convention, including the combinational `.names` format with `.model`, `.inputs`, `.outputs`, truth-table rows, and `.end`. For example:
 
 ```blif
 .model simple
@@ -125,7 +126,7 @@ The program follows the BLIF format convention. Yse the combinational `.names` f
 .end
 ```
 
-The program chooses BLIF parsing when the input filename ends in `.blif`. Sequential BLIF elements and other advanced BLIF directives are not supported.
+The program chooses BLIF parsing when the input filename is passed as an argument and ends in `.blif`. Sequential BLIF elements and other advanced BLIF directives are not supported.
 
 ### Step 3: Check that `sop.v` holds the new function
 

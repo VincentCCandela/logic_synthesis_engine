@@ -19,7 +19,7 @@ expression (one line on stdin)
 6) calculate the minimum-literal cover: minimize(), coversAll(), literals()
 7) print the results: sop(), pos(), products(), numbers()
 8) create verilog code sop.v, sop.qsf, sop.qpf: verilog(), quartus_settings(), write_file()
-9) Truth table is printed to .csv using truth_table_csv(), and delay is calculated via delay()
+9) Truth table is printed to .csv using truth_table_csv(), and longest path delay is calculated via delay()
 
 
 Representation: A product term is a `Cube` with two bit masks over the variables: `mask` marks which variables appear and `value` indicates their value (1 = plain, 0 = inverted) eg for variables `a b c`, `ab'` has mask `110` and value `100`. Variables are sorted alphabetically, with the first as the most significant bit and the last as bit 0. Therefore, a minterm is just an integer, and a cube covers minterm `m` when `(m & mask) == value`. This trick works because the mask will have less ones than m, and we check that the value of the cube is the exact same as the value of the minterm.
@@ -96,7 +96,7 @@ Prime implicants: c'd, a
 Essential prime implicants: c'd, a
 On-set minterms: m(1, 5, 8, 9, 10, 11, 12, 13, 14, 15)
 Off-set maxterms: M(0, 2, 3, 4, 6, 7)
-Estimated delay (gates on the slowest path): 3
+Estimated delay (gates on the longest path): 3
 Truth table: wrote truth_table.csv
 Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board
 ```

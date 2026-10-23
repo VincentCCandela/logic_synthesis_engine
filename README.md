@@ -37,17 +37,23 @@ Hardware generation. verilog() creates structural code using gate primitives. `s
 
 quartus_settings() writes the FPGA device 5CGXFC5C6F27C7, the top-level entity, the Verilog file, and the pin assignments from the Terasic C5G user manual.
 
+## Pins
+
+```
 Signal; FPGA pins; I/O standard
-`SW[0]`; `SW[9]`; AC9, AE10, AD13, AC8, W11, AB10, V10, AC10, Y11, AE19; 1.2 V
-`LEDR[0]`; F7; 2.5 V
+SW[0] to SW[9]; AC9, AE10, AD13, AC8, W11, AB10, V10, AC10, Y11, AE19; 1.2 V
+LEDR[0]; F7; 2.5 V
+```
 
 ## Repository folder structure
 
+```
 logic_synthesis_engine
   main.cpp: all of the synthesizer code, Verilog and Quartus writers
   runtime_steps.txt: simplified demonstration of runtime commands
   README.md: this file
   .gitignore: no compile time and generated files allowed in git
+```
 
 ## Build, run and usage
 
@@ -71,7 +77,7 @@ Pipe in an expression written with the below command
 echo "ab + c'd + ab'" | ./lse
 ```
 
-Important: Only parentheses, single char variables, and ' can be used.
+Important: Only parentheses, single char variables, +, and ' can be used.
 
 Spaces are ignored. Variables are ordered alphabetically, with capital letters before lowercase ones. Unbalanced parentheses are accounted for via error message.
 
@@ -123,5 +129,5 @@ Repeat steps 2-5 to generate new verilog code and flash the board.
 
 1) 10 variables, 1 per switch. 
 2) Exhaustive cover search.
-3) Only parentheses, single char variables, and ' can be used.
+3) Only parentheses, single char variables, +, and ' can be used.
 4) For a function that is always 0, the minimized POS prints as `F=()`.

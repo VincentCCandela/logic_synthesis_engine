@@ -1,4 +1,4 @@
-# `runtime_steps.txt` is an abbreviated version of this readme.
+# runtime_steps.txt is an abbreviated version of this readme.
 
 # Logic Synthesis Engine Description
 
@@ -19,6 +19,7 @@ expression (one line on stdin)
 6) calculate the minimum-literal cover: minimize(), coversAll(), literals()
 7) print the results: sop(), pos(), products(), numbers()
 8) create verilog code sop.v, sop.qsf, sop.qpf: verilog(), quartus_settings(), write_file()
+9) Truth table is printed to .csv using truth_table_csv(), and delay is calculated via delay()
 
 
 Representation: A product term is a `Cube` with two bit masks over the variables: `mask` marks which variables appear and `value` indicates their value (1 = plain, 0 = inverted) eg for variables `a b c`, `ab'` has mask `110` and value `100`. Variables are sorted alphabetically, with the first as the most significant bit and the last as bit 0. Therefore, a minterm is just an integer, and a cube covers minterm `m` when `(m & mask) == value`. This trick works because the mask will have less ones than m, and we check that the value of the cube is the exact same as the value of the minterm.
@@ -81,18 +82,22 @@ Important: Only parentheses, single char variables, +, and ' can be used.
 
 Spaces are ignored. Variables are ordered alphabetically, with capital letters before lowercase ones. Unbalanced parentheses are accounted for via error message.
 
+Outputs are printed to terminal except for the truth table which is saved to .csv 
+
 Example
 ```
 Canonical SOP: F=a'b'c'd + a'bc'd + ab'c'd' + ab'c'd + ab'cd' + ab'cd + abc'd' + abc'd + abcd' + abcd
 Canonical POS: F=(a + b + c + d)(a + b + c' + d)(a + b + c' + d')(a + b' + c + d)(a + b' + c' + d)(a + b' + c' + d')
 Inverse canonical SOP: F'=a'b'c'd' + a'b'cd' + a'b'cd + a'bc'd' + a'bcd' + a'bcd
-Inverse canonical POS: F'=(a + b + c + d')(a + b' + c + d')(a' + b + c + d)(a' + b + c + d')(a' + b + c' + d)(a' + b + c' + d')(a' + b' + c + d)(a' + b' + c + d')(a' + b' + c' + d)(a' + b' + c' + d')
+Inverse canonical POS: F'=(a + b + c + d')(a + b' + c + d')(a' + b + c + d)(a' + b + c + d')(a' + b + c' + d)(a' + b + c' + d')(a' + b' + c + d)(a' +b' + c + d')(a' + b' + c' + d)(a' + b' + c' + d')
 Literal-minimized SOP: F=c'd + a
 Literal-minimized POS: F=(a + d)(a + c')
 Prime implicants: c'd, a
 Essential prime implicants: c'd, a
 On-set minterms: m(1, 5, 8, 9, 10, 11, 12, 13, 14, 15)
 Off-set maxterms: M(0, 2, 3, 4, 6, 7)
+Estimated delay (gates on the slowest path): 3
+Truth table: wrote truth_table.csv
 Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board
 ```
 

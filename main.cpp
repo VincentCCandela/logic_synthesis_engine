@@ -459,6 +459,46 @@ bool evaluate_sum(const std::string& expression, size_t& index, int minterm){
     return value;
 }
 
+//the truth table as csv text, a column for each variable and one for f, a row for each minterm
+std::string truth_table_csv(const std::vector<bool>& truth_table){
+    std::string text;
+    for(char variable : variables){
+        text += variable;
+        text += ",";
+    }
+    text += "F\n";
+    for(int minterm = 0; minterm <= max_minterm; ++minterm){
+        for(char variable : variables){
+            text += (minterm & bit(variable)) ? "1," : "0,";
+        }
+        text += truth_table[minterm] ? "1\n" : "0\n";
+    }
+    return text;
+}
+
+//estimated delay of the minimized sop circuit, counted as the gates on its slowest path from a switch to out
+//every gate counts as one delay, the buf is skipped since it only copies its input
+//this works for the minimized sop, not for the full non-minimized function
+int delay(const std::vector<Cube>& cubes){
+    int longest = 0;
+    for(Cube cube : cubes){
+        int gates = 0;
+        if(cube.value != cube.mask){//not gate, a complemented literal is 1 in mask but 0 in value
+            ++gates;
+        }
+        if(literals({cube}) > 1){//and gate
+            ++gates;
+        }
+        if(gates > longest){
+            longest = gates;
+        }
+    }
+    if(cubes.size() > 1){//or gate
+        ++longest;
+    }
+    return longest;
+}
+
 int main(){
     std::string expression;
     std::getline(std::cin, expression);
@@ -538,6 +578,14 @@ int main(){
     std::cout << "Essential prime implicants: " << products(essential_primes, ", ", "none") << "\n";
     std::cout << "On-set minterms: m(" << numbers(on_set) << ")\n";
     std::cout << "Off-set maxterms: M(" << numbers(off_set) << ")\n";
+
+    std::cout << "Estimated delay (gates on the slowest path): " << delay(minimized_sop) << "\n";
+    if(write_file("truth_table.csv", truth_table_csv(truth_table))){
+        std::cout << "Truth table: wrote truth_table.csv\n";
+    }
+    else{
+        std::cout << "Truth table: could not write truth_table.csv\n";
+    }
 
     //structural verilog of the minimized sop plus a quartus project for the cyclone v gx starter kit
     if(variables.size() > switch_pins.size()){

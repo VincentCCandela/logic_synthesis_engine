@@ -1,0 +1,7 @@
+#compiled binary
+lse
+
+#files the program writes when it runs
+sop.v
+sop.qsf
+sop.qpf

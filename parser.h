@@ -52,19 +52,4 @@ bool evaluateBlifSignal(const string &signal,
                         const unordered_map<string, const BlifNode *> &nodes,
                         unordered_map<string, bool> &values,
                         set<string> &active);
-
-vector<string> generateBitstreams(
-    size_t inputCount, size_t outputCount,
-    const function<vector<bool>(const vector<bool> &)> &evaluateRow);
-void exportTruthTable(const string &bitstream,
-                      const vector<string> &inputNames,
-                      const string &outputName,
-                      const string &filePath);
-void exportTruthTable(const vector<bool> &bitstream,
-                      const vector<string> &inputNames,
-                      const string &outputName,
-                      const string &filePath);
-vector<ProductTerm> parseSOP(const string &expr, set<char> &uniqueVars, string &outputName);
-vector<string> generateSOPBitstream(
-    const vector<vector<ProductTerm>> &outputTerms, const set<char> &varSet);
 #endif

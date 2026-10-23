@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
         {
             std::cout << "Structural Verilog: not written, the board only has " << switch_pins.size() << " slide switches\n";
         }
-        else if (write_file(outputs[i] + "_sop.v", verilog(minimized_sop)) && write_file(outputs[i] + "_sop.qsf", quartus_settings()) && write_file("sop.qpf", "PROJECT_REVISION = \"sop\"\n"))
+        else if (write_file("sop.v", verilog(minimized_sop)) && write_file("sop.qsf", quartus_settings()) && write_file("sop.qpf", "PROJECT_REVISION = \"sop\"\n"))
         {
             std::cout << "Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board\n";
         }

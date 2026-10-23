@@ -143,7 +143,7 @@ The program writes one Verilog file per circuit output in the current working di
 - `not` gates invert complemented input literals.
 - `and` gates form each product term.
 - An `or` gate combines the product terms into the output.
-- Internal wires connect the gates, and the default name for these connections are `w_<number>`
+- Internal wires connect the gates, and the default name for these connections are `p<number>` for products and `<signal>_n` for complementes.
 
 For example, an SOP such as `f = a' b + a c` is represented using an inverter for `a`, two AND gates for the products, and an OR gate driving `f`.
 

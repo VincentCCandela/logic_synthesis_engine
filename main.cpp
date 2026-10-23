@@ -470,6 +470,10 @@ int main(){
     }
     std::sort(variables.begin(), variables.end());
     num_vars = variables.size();
+    if(num_vars > 10){
+        std::cout << "Error: More than 10 variables present\n";
+        return 1;
+    }
     //implicant consisting of all ones
     max_minterm = (1 << variables.size()) - 1;
 

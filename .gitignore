@@ -2,6 +2,7 @@
 lse
 
 #files the program writes when it runs
-sop.v
-sop.qsf
-sop.qpf
+sop.*
+db
+incremental_db
+c5_pin_model_dump.txt

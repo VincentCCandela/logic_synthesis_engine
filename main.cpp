@@ -355,7 +355,7 @@ std::string verilog(const std::vector<Cube>& cubes){
         add_gate(gates, "or", "out", join(terms, ", "));
     }
 
-    std::string text = "//structural verilog for f = " + sop(cubes) + "\n\n";
+    std::string text = "//structural verilog for f = " + sop(cubes) + "\n";
     text += "module sop_gates(\n    " + join(ports, ",\n    ") + "\n);\n";
     if(!wires.empty()){
         text += "    wire " + join(wires, ", ") + ";\n";

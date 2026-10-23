@@ -136,3 +136,4 @@ Repeat steps 2-5 to generate new verilog code and flash the board.
 2) Exhaustive cover search.
 3) Only parentheses, single char variables, +, and ' can be used.
 4) For a function that is always 0, the minimized POS prints as `F=()`.
+5) AI was used for concept understanding, drafting the code, and error-checking the code, and setup of code runtimes

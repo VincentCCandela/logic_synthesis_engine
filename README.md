@@ -6,7 +6,7 @@ This is a command-line Boolean function minimizer written in C++17. Given an exp
 
 ## Architecture overview
 
-`main.cpp` contains all of the code which uses cpp17 standard library.
+`main.cpp` contains all of the code which uses cpp17 standard library. It coordinates commandline parsing, file loading, selects the input format, runs the analysis, prints results to stdout, and writes output to files.
 
 Dataflow consists like so:
 
@@ -24,7 +24,7 @@ expression (one line on stdin)
 
 Representation: A product term is a `Cube` with two bit masks over the variables: `mask` marks which variables appear and `value` indicates their value (1 = plain, 0 = inverted) eg for variables `a b c`, `ab'` has mask `110` and value `100`. Variables are sorted alphabetically, with the first as the most significant bit and the last as bit 0. Therefore, a minterm is just an integer, and a cube covers minterm `m` when `(m & mask) == value`. This trick works because the mask will have less ones than m, and we check that the value of the cube is the exact same as the value of the minterm.
 
-Parser: The parser is a recursive-descent evaluator with one function per grammar level. Instead of building a syntax tree, it evaluates the expression directly for each of the 2^n inputs to fill in the truth table.
+Parser: The commandline parser is a recursive-descent evaluator with one function per grammar level. Instead of building a syntax tree, it evaluates the expression directly for each of the 2^n inputs to fill in the truth table. The 
 
 NOTE: adjacent factors are ANDed
 
@@ -51,6 +51,7 @@ LEDR[0]; F7; 2.5 V
 ```
 logic_synthesis_engine
   main.cpp: all of the synthesizer code, Verilog and Quartus writers
+  parser.cpp and parser.h: parser code for graphical reprentation of circuit given in .blif files
   runtime_steps.txt: simplified demonstration of runtime commands
   README.md: this file
   .gitignore: no compile time and generated files allowed in git
@@ -69,9 +70,15 @@ git clone https://github.com/VincentCCandela/logic_synthesis_engine.git
 cd logic_synthesis_engine
 g++ -std=c++17 -O2 -Wall -o lse main.cpp
 ```
+or use the Makefile from the repository root:
+
+```sh
+make
+```
 
 ### Step 2: Run the minimizer
 
+#### Commandline Boolean Expression Mode
 Pipe in an expression written with the below command
 
 ```bash
@@ -100,6 +107,25 @@ Estimated delay (gates on the longest path): 3
 Truth table: wrote truth_table.csv
 Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board
 ```
+#### Graphical Circuit Mode
+For graphical circuit mode, pass in a BLIF file in the arguments
+
+```sh
+./lse Example/adder.blif
+```
+
+The program follows the BLIF format convention. Yse the combinational `.names` format with `.model`, `.inputs`, `.outputs`, truth-table rows, and `.end`. For example:
+
+```blif
+.model simple
+.inputs a b
+.outputs f
+.names a b f
+11 1
+.end
+```
+
+The program chooses BLIF parsing when the input filename ends in `.blif`. Sequential BLIF elements and other advanced BLIF directives are not supported.
 
 ### Step 3: Check that `sop.v` holds the new function
 
@@ -108,6 +134,18 @@ head -1 sop.v
 ```
 
 This should print the minimized sop.
+
+#### Structural Verilog output
+
+The program writes one Verilog file per circuit output in the current working directory. Each file contains synthesizable combinational modules named after the output. Its input ports are the circuit's input nets, and its output port is the corresponding output net. The module is structural gate-level Verilog generated from the minimized SOP:
+
+- `not` gates invert complemented input literals.
+- `and` gates form each product term.
+- An `or` gate combines the product terms into the output.
+- Internal wires connect the gates, and the default name for these connections are `w_<number>`
+
+For example, an SOP such as `f = a' b + a c` is represented using an inverter for `a`, two AND gates for the products, and an OR gate driving `f`.
+
 
 ### Step 4: Compile with Quartus
 

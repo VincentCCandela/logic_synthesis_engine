@@ -7,3 +7,9 @@ db
 incremental_db
 c5_pin_model_dump.txt
 truth_table.csv
+*.o
+main
+*.csv
+*.v
+*.qsf
+*.qpf

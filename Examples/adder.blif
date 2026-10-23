@@ -1,0 +1,24 @@
+.model simple_gate
+.inputs a b d
+.outputs s c
+
+# Calculate sum = a ^ b ^ cin using .names truth tables (PLA format)
+.names a b d s
+100 1
+010 1
+001 1
+111 1
+
+# Calculate cout = (a & b) | (cin & (a ^ b))
+.names a b f
+11 1
+
+.names a b d g
+1-1 1
+-11 1
+
+.names f g c
+1- 1
+-1 1
+
+.end

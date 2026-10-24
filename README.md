@@ -112,7 +112,7 @@ Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclon
 For graphical circuit mode, pass in a BLIF file in the arguments
 
 ```sh
-./lse Example/adder.blif
+./main Examples/adder.blif
 ```
 
 The program follows the BLIF format convention, including the combinational `.names` format with `.model`, `.inputs`, `.outputs`, truth-table rows, and `.end`. For example:

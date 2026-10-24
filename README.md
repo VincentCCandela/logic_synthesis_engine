@@ -16,7 +16,7 @@ expression (one line on stdin)
 3) create truth tables of F and F': main()
 4) calculate the prime implicants: primes(), implicant()
 5) calculate the essential and non-essential primes: split(), is_essential()
-6) calculate the minimum-literal cover: minimize(), coversAll(), literals()
+6) calculate the minimum-literal cover: minimize(), coversAll(), literal()
 7) print the results: sop(), pos(), products(), numbers()
 8) create verilog code sop.v, sop.qsf, sop.qpf: verilog(), quartus_settings(), write_file()
 9) Truth table is printed to .csv using truth_table_csv(), and longest path delay is calculated via delay()
@@ -99,6 +99,7 @@ Outputs are printed to terminal except for the truth table which is saved to .cs
 
 Example
 ```
+processing output F
 Canonical SOP: F=a'b'c'd + a'bc'd + ab'c'd' + ab'c'd + ab'cd' + ab'cd + abc'd' + abc'd + abcd' + abcd
 Canonical POS: F=(a + b + c + d)(a + b + c' + d)(a + b + c' + d')(a + b' + c + d)(a + b' + c' + d)(a + b' + c' + d')
 Inverse canonical SOP: F'=a'b'c'd' + a'b'cd' + a'b'cd + a'bc'd' + a'bcd' + a'bcd
@@ -145,7 +146,7 @@ This should print the minimized sop.
 
 #### Structural Verilog output
 
-The program writes one Verilog file per circuit output in the current working directory. Each file contains synthesizable combinational modules named after the output. Its input ports are the circuit's input nets, and its output port is the corresponding output net. The module is structural gate-level Verilog generated from the minimized SOP:
+The program writes one Verilog file for the last blif output. The verilog codec ontains synthesizable combinational modules named after the output. Its input ports are the circuit's input nets, and its output port is the corresponding output net. The module is structural gate-level Verilog generated from the minimized SOP:
 
 - `not` gates invert complemented input literals.
 - `and` gates form each product term.

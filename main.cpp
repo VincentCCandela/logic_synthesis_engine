@@ -8,7 +8,11 @@ AI was used for concept understanding, drafting the code, and error-checking the
 #include <iostream>
 #include <string>
 #include <vector>
+// blif input is only compiled in with -DBLIF (make blif)
+// main can otherwise be compiled on it's own
+#ifdef BLIF
 #include "parser.h"
+#endif
 
 struct Cube
 {
@@ -615,6 +619,7 @@ int main(int argc, char *argv[])
     // BLIF: input parsing
     if (mode == 1)
     {
+#ifdef BLIF
         std::string filename = argv[1];
         std::ifstream inFile(filename);
         std::string line;
@@ -625,7 +630,7 @@ int main(int argc, char *argv[])
 
         if (filename.length() >= 5 && filename.compare(filename.length() - 5, 5, ".blif") != 0)
         {
-            cout << "invalid BLIF file" << endl;
+            std::cerr << "invalid BLIF file" << endl;
             return -1;
         }
 
@@ -678,11 +683,15 @@ int main(int argc, char *argv[])
         num_vars = variables.size();
         if (num_vars > 10)
         {
-            std::cout << "Error: More than 10 variables present\n";
+            std::cerr << "Error: More than 10 variables present\n";
             return 1;
         }
         // implicant consisting of all ones
         max_minterm = (1 << variables.size()) - 1;
+#else
+        std::cerr << "Error: BLIF input needs the BLIF build (make blif)\n";
+        return 1;
+#endif
     }
     else
     {
@@ -700,7 +709,7 @@ int main(int argc, char *argv[])
         num_vars = variables.size();
         if (num_vars > 10)
         {
-            std::cout << "Error: More than 10 variables present\n";
+            std::cerr << "Error: More than 10 variables present\n";
             return 1;
         }
         // implicant consisting of all ones
@@ -724,7 +733,7 @@ int main(int argc, char *argv[])
             {
                 if (unclosed == 0)
                 {
-                    std::cout << "Error: a ) has no matching (\n";
+                    std::cerr << "Error: a ) has no matching (\n";
                     return 1;
                 }
                 --unclosed;
@@ -732,7 +741,7 @@ int main(int argc, char *argv[])
         }
         if (unclosed > 0)
         {
-            std::cout << "Error: a ( has no matching )\n";
+            std::cerr << "Error: a ( has no matching )\n";
             return 1;
         }
         truth_tables.resize(1);
@@ -750,7 +759,7 @@ int main(int argc, char *argv[])
     }
     for (size_t i = 0; i < truth_tables.size(); ++i)
     {
-        cout << "processing output " << outputs[i] << endl;
+        std::cout << "processing output " << outputs[i] << std::endl;
         std::vector<bool> truth_table = truth_tables[i];
         std::vector<bool> inverse_truth_table(max_minterm + 1); // truth table of F'
         std::vector<int> on_set, off_set;
@@ -800,13 +809,13 @@ int main(int argc, char *argv[])
         }
         else
         {
-            std::cout << "Truth table: could not write truth_table.csv\n";
+            std::cerr << "Truth table: could not write truth_table.csv\n";
         }
 
         // structural verilog of the minimized sop plus a quartus project for the cyclone v gx starter kit
         if (variables.size() > switch_pins.size())
         {
-            std::cout << "Structural Verilog: not written, the board only has " << switch_pins.size() << " slide switches\n";
+            std::cerr << "Structural Verilog: not written, the board only has " << switch_pins.size() << " slide switches\n";
         }
         else if (write_file("sop.v", verilog(minimized_sop)) && write_file("sop.qsf", quartus_settings()) && write_file("sop.qpf", "PROJECT_REVISION = \"sop\"\n"))
         {
@@ -814,8 +823,8 @@ int main(int argc, char *argv[])
         }
         else
         {
-            std::cout << "Structural Verilog: could not write sop.v, sop.qsf, sop.qpf\n";
+            std::cerr << "Structural Verilog: could not write sop.v, sop.qsf, sop.qpf\n";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }

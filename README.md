@@ -66,16 +66,21 @@ This setup used g++17 with Quartus Prime Lite 24.1std on Ubuntu 24.04.
 
 ### Step 1: Build
 
+There are two builds. The simple build reads an expression piped in on stdin and only needs `main.cpp`:
+
 ```bash
 git clone https://github.com/VincentCCandela/logic_synthesis_engine.git
 cd logic_synthesis_engine
-g++ -std=c++17 -O2 -Wall -o lse main.cpp
+make simple
 ```
-or use the Makefile from the repository root:
 
-```sh
-make
+The extended build also reads BLIF circuit files. It defines `BLIF` and adds `parser.cpp`:
+
+```bash
+make blif
 ```
+
+Both write `./lse`.
 
 ### Step 2: Run the minimizer
 
@@ -109,10 +114,10 @@ Truth table: wrote truth_table.csv
 Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board
 ```
 #### Graphical Circuit Mode
-For graphical circuit mode, pass in a BLIF file in the arguments
+For graphical circuit mode, use the extended build (`make blif`), and pass in a BLIF file in the arguments when running the executable. The simple build prints an error if it is given a file.
 
 ```sh
-./main Examples/adder.blif
+./lse Examples/adder.blif
 ```
 
 The program follows the BLIF format convention, including the combinational `.names` format with `.model`, `.inputs`, `.outputs`, truth-table rows, and `.end`. For example:
@@ -127,6 +132,8 @@ The program follows the BLIF format convention, including the combinational `.na
 ```
 
 The program chooses BLIF parsing when the input filename is passed as an argument and ends in `.blif`. Sequential BLIF elements and other advanced BLIF directives are not supported.
+
+NOTE: For the blif  runtime, the only function that reaches the board is the minimized SOP of the last name in .outputs.
 
 ### Step 3: Check that `sop.v` holds the new function
 

@@ -1,5 +1,12 @@
+# simple example runtime
 g++ -std=c++17 -O2 -Wall -o lse main.cpp
 echo "ab + c'd + ab'" | ./lse
+head -1 sop.v
+quartus_sh --flow compile sop
+quartus_pgm -c 1 -m jtag -o "p;sop.sof@1"
+# blif example runtime
+make blif
+./lse Examples/adder.blif
 head -1 sop.v
 quartus_sh --flow compile sop
 quartus_pgm -c 1 -m jtag -o "p;sop.sof@1"

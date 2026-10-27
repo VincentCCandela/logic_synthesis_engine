@@ -16,7 +16,7 @@ expression (one line on stdin)
 3) create truth tables of F and F': main()
 4) calculate the prime implicants: primes(), implicant()
 5) calculate the essential and non-essential primes: split(), is_essential()
-6) calculate the minimum-literal cover: minimize(), coversAll(), literals()
+6) calculate the minimum-literal cover: minimize(), coversAll(), literal()
 7) print the results: sop(), pos(), products(), numbers()
 8) create verilog code sop.v, sop.qsf, sop.qpf: verilog(), quartus_settings(), write_file()
 9) Truth table is printed to .csv using truth_table_csv(), and longest path delay is calculated via delay()
@@ -66,16 +66,21 @@ This setup used g++17 with Quartus Prime Lite 24.1std on Ubuntu 24.04.
 
 ### Step 1: Build
 
+There are two builds. The simple build reads an expression piped in on stdin and only needs `main.cpp`:
+
 ```bash
 git clone https://github.com/VincentCCandela/logic_synthesis_engine.git
 cd logic_synthesis_engine
-g++ -std=c++17 -O2 -Wall -o lse main.cpp
+make simple
 ```
-or use the Makefile from the repository root:
 
-```sh
-make
+The extended build also reads BLIF circuit files. It defines `BLIF` and adds `parser.cpp`:
+
+```bash
+make blif
 ```
+
+Both write `./lse`.
 
 ### Step 2: Run the minimizer
 
@@ -94,6 +99,7 @@ Outputs are printed to terminal except for the truth table which is saved to .cs
 
 Example
 ```
+processing output F
 Canonical SOP: F=a'b'c'd + a'bc'd + ab'c'd' + ab'c'd + ab'cd' + ab'cd + abc'd' + abc'd + abcd' + abcd
 Canonical POS: F=(a + b + c + d)(a + b + c' + d)(a + b + c' + d')(a + b' + c + d)(a + b' + c' + d)(a + b' + c' + d')
 Inverse canonical SOP: F'=a'b'c'd' + a'b'cd' + a'b'cd + a'bc'd' + a'bcd' + a'bcd
@@ -109,10 +115,10 @@ Truth table: wrote truth_table.csv
 Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board
 ```
 #### Graphical Circuit Mode
-For graphical circuit mode, pass in a BLIF file in the arguments
+For graphical circuit mode, use the extended build (`make blif`), and pass in a BLIF file in the arguments when running the executable. The simple build prints an error if it is given a file.
 
 ```sh
-./lse Example/adder.blif
+./lse Examples/adder.blif
 ```
 
 The program follows the BLIF format convention, including the combinational `.names` format with `.model`, `.inputs`, `.outputs`, truth-table rows, and `.end`. For example:
@@ -128,6 +134,8 @@ The program follows the BLIF format convention, including the combinational `.na
 
 The program chooses BLIF parsing when the input filename is passed as an argument and ends in `.blif`. Sequential BLIF elements and other advanced BLIF directives are not supported.
 
+NOTE: For the blif  runtime, the only function that reaches the board is the minimized SOP of the last name in .outputs.
+
 ### Step 3: Check that `sop.v` holds the new function
 
 ```bash
@@ -138,7 +146,7 @@ This should print the minimized sop.
 
 #### Structural Verilog output
 
-The program writes one Verilog file per circuit output in the current working directory. Each file contains synthesizable combinational modules named after the output. Its input ports are the circuit's input nets, and its output port is the corresponding output net. The module is structural gate-level Verilog generated from the minimized SOP:
+The program writes one Verilog file for the last blif output. The verilog codec ontains synthesizable combinational modules named after the output. Its input ports are the circuit's input nets, and its output port is the corresponding output net. The module is structural gate-level Verilog generated from the minimized SOP:
 
 - `not` gates invert complemented input literals.
 - `and` gates form each product term.

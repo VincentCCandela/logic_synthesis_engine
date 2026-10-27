@@ -3,6 +3,7 @@ lse
 
 #files the program writes when it runs
 sop.*
+!sop.qsf
 db
 incremental_db
 c5_pin_model_dump.txt

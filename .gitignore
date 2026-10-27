@@ -11,5 +11,5 @@ truth_table.csv
 main
 *.csv
 *.v
-*.qsf
 *.qpf
+lse

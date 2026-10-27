@@ -371,17 +371,16 @@ void add_gate(std::vector<std::string> &gates, std::string type, std::string out
 // module sop_gates holds gates, module sop is top level module for the cyclone v gx starter kit
 // each variable is a slide switch and last variable is on sw[0] (switches spell out the minterm number)
 // the output is on ledr[0]
-std::string verilog(const std::vector<Cube> &cubes)
+std::string verilog(const std::vector<Cube> &cubes, int output, std::vector<std::string> *connections)
 {
     std::vector<std::string> ports;
-    std::vector<std::string> connections;
     std::vector<std::string> wires; // the internal signals that have to be declared with wire
     std::vector<std::string> gates; // the full text of every gate line in the order they were added
     for (char variable : variables)
     {
         std::string name(1, variable);
         ports.push_back("input " + name);
-        connections.push_back("." + name + "(SW[" + std::to_string(position(variable)) + "])");
+        connections->push_back("." + name + "(SW[" + std::to_string(position(variable)) + "])");
 
         for (Cube cube : cubes)
         {
@@ -394,7 +393,7 @@ std::string verilog(const std::vector<Cube> &cubes)
         }
     }
     ports.push_back("output out");
-    connections.push_back(".out(LEDR[0])");
+    connections->push_back(".out(LEDR[" + std::to_string(output) + "])");
 
     std::vector<std::string> terms; // one entry per product term, naming the signal that carries it
     for (Cube cube : cubes)
@@ -438,23 +437,35 @@ std::string verilog(const std::vector<Cube> &cubes)
     }
 
     std::string text = "//structural verilog for f = " + sop(cubes) + "\n";
-    text += "module sop_gates(\n    " + join(ports, ",\n    ") + "\n);\n";
+    text += "module sop_gates_" + std::to_string(output) + "(\n    " + join(ports, ",\n    ") + "\n);\n";
     if (!wires.empty())
     {
         text += "    wire " + join(wires, ", ") + ";\n";
     }
     text += "    " + join(gates, "\n    ") + "\n";
     text += "endmodule\n\n";
+    return text;
+}
 
+std::string verilog_top(std::vector<std::vector<std::string>> all_connections)
+{
+    std::string text = "//top level entity for the cyclone v gx starter kit\n";
+    for (size_t i = 0; i < all_connections.size(); i++)
+    {
+        text += "`include \"sop_" + std::to_string(i) + ".v\"\n";
+    }
     std::vector<std::string> pins;
     if (num_vars > 0)
     {
         pins.push_back("input [" + std::to_string(num_vars - 1) + ":0] SW");
     }
-    pins.push_back("output [0:0] LEDR");
-    text += "//top level entity for the cyclone v gx starter kit\n";
+    pins.push_back("output [" + std::to_string(all_connections.size() - 1) + ":0] LEDR");
     text += "module sop(\n    " + join(pins, ",\n    ") + "\n);\n";
-    text += "    sop_gates u0(\n        " + join(connections, ",\n        ") + "\n    );\n";
+    for (size_t i = 0; i < all_connections.size(); i++)
+    {
+        text += "    sop_gates_" + std::to_string(i) + " u" + std::to_string(i) + "(\n        " + join(all_connections[i], ",\n        ") + "\n    );\n";
+    }
+
     text += "endmodule\n";
     return text;
 }
@@ -748,8 +759,10 @@ int main(int argc, char *argv[])
         outputs.resize(1);
         outputs[0] = "F";
     }
+    std::vector<std::vector<std::string>> connections;
     for (size_t i = 0; i < truth_tables.size(); ++i)
     {
+
         cout << "processing output " << outputs[i] << endl;
         std::vector<bool> truth_table = truth_tables[i];
         std::vector<bool> inverse_truth_table(max_minterm + 1); // truth table of F'
@@ -794,6 +807,8 @@ int main(int argc, char *argv[])
         std::cout << "Off-set maxterms: M(" << numbers(off_set) << ")\n";
 
         std::cout << "Estimated delay (gates on the slowest path): " << delay(minimized_sop) << "\n";
+
+        connections.resize(outputs.size());
         if (write_file(outputs[i] + "_truth_table.csv", truth_table_csv(truth_table)))
         {
             std::cout << "Truth table: wrote truth_table.csv\n";
@@ -808,7 +823,7 @@ int main(int argc, char *argv[])
         {
             std::cout << "Structural Verilog: not written, the board only has " << switch_pins.size() << " slide switches\n";
         }
-        else if (write_file("sop.v", verilog(minimized_sop)) && write_file("sop.qsf", quartus_settings()) && write_file("sop.qpf", "PROJECT_REVISION = \"sop\"\n"))
+        else if (write_file("sop_" + std::to_string(i) + ".v", verilog(minimized_sop, i, &connections[i])))
         {
             std::cout << "Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board\n";
         }
@@ -817,5 +832,10 @@ int main(int argc, char *argv[])
             std::cout << "Structural Verilog: could not write sop.v, sop.qsf, sop.qpf\n";
         }
         cout << endl;
+    }
+
+    if (write_file("sop.v", verilog_top(connections)) && write_file("sop.qpf", "PROJECT_REVISION = \"sop\"\n"))
+    {
+        std::cout << "Structural Verilog: wrote sop.v, sop.qsf, sop.qpf\n";
     }
 }

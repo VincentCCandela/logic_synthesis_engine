@@ -1,0 +1,24 @@
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name DEVICE 5CGXFC5C6F27C7
+set_global_assignment -name TOP_LEVEL_ENTITY sop
+set_global_assignment -name VERILOG_FILE sop.v
+set_location_assignment PIN_AC9 -to SW[0]
+set_instance_assignment -name IO_STANDARD "1.2 V" -to SW[0]
+set_location_assignment PIN_AE10 -to SW[1]
+set_instance_assignment -name IO_STANDARD "1.2 V" -to SW[1]
+set_location_assignment PIN_AD13 -to SW[2]
+set_instance_assignment -name IO_STANDARD "1.2 V" -to SW[2]
+set_location_assignment PIN_AC8 -to SW[3]
+set_instance_assignment -name IO_STANDARD "1.2 V" -to SW[3]
+set_location_assignment PIN_W11 -to SW[4]
+set_instance_assignment -name IO_STANDARD "1.2 V" -to SW[4]
+set_location_assignment PIN_AB10 -to SW[5]
+set_instance_assignment -name IO_STANDARD "1.2 V" -to SW[5]
+set_location_assignment PIN_F7 -to LEDR[0]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[0]
+set_location_assignment PIN_F6 -to LEDR[1]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[1]
+set_location_assignment PIN_G6 -to LEDR[2]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[2]
+set_location_assignment PIN_G7 -to LEDR[3]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[3]

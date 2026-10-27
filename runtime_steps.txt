@@ -1,6 +1,8 @@
 # simple example runtime
+# make simple
 g++ -std=c++17 -O2 -Wall -o lse main.cpp
 echo "ab + c'd + ab'" | ./lse
+echo "ab(ac+d'e(bd))" | ./lse
 head -1 sop.v
 quartus_sh --flow compile sop
 quartus_pgm -c 1 -m jtag -o "p;sop.sof@1"

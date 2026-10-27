@@ -13,3 +13,5 @@ main
 *.v
 *.qsf
 *.qpf
+
+nohup.out

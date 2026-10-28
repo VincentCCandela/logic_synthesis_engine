@@ -1,5 +1,5 @@
 # simple example runtime
-# make simple
+# make
 g++ -std=c++17 -O2 -Wall -o lse main.cpp
 echo "ab + c'd + ab'" | ./lse
 echo "ab(ac+d'e(bd))" | ./lse

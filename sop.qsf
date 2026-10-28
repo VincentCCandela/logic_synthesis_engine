@@ -22,3 +22,4 @@ set_location_assignment PIN_G6 -to LEDR[2]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[2]
 set_location_assignment PIN_G7 -to LEDR[3]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[3]
+set_global_assignment -name LAST_QUARTUS_VERSION "24.1std.0 Lite Edition"

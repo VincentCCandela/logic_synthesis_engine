@@ -12,3 +12,7 @@ make blif
 head -1 sop.v
 quartus_sh --flow compile sop
 quartus_pgm -c 1 -m jtag -o "p;sop.sof@1"
+# macos addendum
+quartus_cpf --option=bitstream_compression=off -c sop.sof sop.rbf
+openFPGALoader -c usb-blaster --detect
+openFPGALoader -c usb-blaster sop.rbf

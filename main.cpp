@@ -867,13 +867,13 @@ int main(int argc, char *argv[])
         }
         else
         {
-            std::cerr << "Structural Verilog: could not write sop.v, sop.qsf, sop.qpf\n";
+            std::cerr << "Structural Verilog: could not write sop.v, sop.qpf\n";
         }
         std::cout << std::endl;
     }
 
     if (write_file("sop.v", verilog_top(connections)) && write_file("sop.qpf", "PROJECT_REVISION = \"sop\"\n"))
     {
-        std::cout << "Structural Verilog: wrote sop.v, sop.qsf, sop.qpf\n";
+        std::cout << "Structural Verilog: wrote sop.v, sop.qpf\n";
     }
 }

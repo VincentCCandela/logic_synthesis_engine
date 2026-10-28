@@ -102,19 +102,22 @@ Outputs are printed to terminal except for the truth table which is saved to .cs
 Example
 ```
 processing output F
-Canonical SOP: F=a'b'c'd + a'bc'd + ab'c'd' + ab'c'd + ab'cd' + ab'cd + abc'd' + abc'd + abcd' + abcd
-Canonical POS: F=(a + b + c + d)(a + b + c' + d)(a + b + c' + d')(a + b' + c + d)(a + b' + c' + d)(a + b' + c' + d')
-Inverse canonical SOP: F'=a'b'c'd' + a'b'cd' + a'b'cd + a'bc'd' + a'bcd' + a'bcd
-Inverse canonical POS: F'=(a + b + c + d')(a + b' + c + d')(a' + b + c + d)(a' + b + c + d')(a' + b + c' + d)(a' + b + c' + d')(a' + b' + c + d)(a' +b' + c + d')(a' + b' + c' + d)(a' + b' + c' + d')
-Literal-minimized SOP: F=c'd + a
-Literal-minimized POS: F=(a + d)(a + c')
-Prime implicants: c'd, a
-Essential prime implicants: c'd, a
-On-set minterms: m(1, 5, 8, 9, 10, 11, 12, 13, 14, 15)
-Off-set maxterms: M(0, 2, 3, 4, 6, 7)
-Estimated delay (gates on the longest path): 3
+Canonical SOP: F=abcd'e' + abcd'e + abcde' + abcde
+Canonical POS: F=(a + b + c + d + e)(a + b + c + d + e')(a + b + c + d' + e)(a + b + c + d' + e')(a + b + c' + d + e)(a + b + c' + d + e')(a + b + c' + d' + e)(a + b + c' + d' + e')(a + b' + c + d + e)(a + b' + c + d + e')(a + b' + c + d' + e)(a + b' + c + d' + e')(a + b' + c' + d + e)(a + b' + c' + d + e')(a + b' + c' + d' + e)(a + b' + c' + d' + e')(a' + b +c + d + e)(a' + b + c + d + e')(a' + b + c + d' + e)(a' + b + c + d' + e')(a' + b + c' + d + e)(a' + b + c' + d + e')(a'+ b + c' + d' + e)(a' + b + c' + d' + e')(a' + b' + c + d + e)(a' + b' + c + d + e')(a' + b' + c + d' + e)(a' + b' + c +d' + e')
+Inverse canonical SOP: F'=a'b'c'd'e' + a'b'c'd'e + a'b'c'de' + a'b'c'de + a'b'cd'e' + a'b'cd'e + a'b'cde' + a'b'cde + a'bc'd'e' + a'bc'd'e + a'bc'de' + a'bc'de + a'bcd'e' + a'bcd'e + a'bcde' + a'bcde + ab'c'd'e' + ab'c'd'e + ab'c'de' + ab'c'de + ab'cd'e' + ab'cd'e + ab'cde' + ab'cde + abc'd'e' + abc'd'e + abc'de' + abc'de
+Inverse canonical POS: F'=(a' + b' + c' + d + e)(a' + b' + c' + d + e')(a' + b' + c' + d' + e)(a' + b' + c' + d' + e')
+Literal-minimized SOP: F=abc
+Literal-minimized POS: F=(c)(b)(a)
+Prime implicants: abc
+Essential prime implicants: abc
+On-set minterms: m(28, 29, 30, 31)
+Off-set maxterms: M(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)
+Hazard-free SOP: F=abc
+Estimated delay (gates on the slowest path): 1
 Truth table: wrote truth_table.csv
 Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board
+
+Structural Verilog: wrote sop.v, sop.qpf
 ```
 #### Graphical Circuit Mode
 For graphical circuit mode, use the extended build (`make blif`), and pass in a BLIF file in the arguments when running the executable. The simple build prints an error if it is given a file.

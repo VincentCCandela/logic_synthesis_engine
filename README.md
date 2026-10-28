@@ -64,6 +64,8 @@ A cpp17 compiler is needed. Quartus prime lite edition is needed with `quartus/b
 
 This setup used g++17 with Quartus Prime Lite 24.1std on Ubuntu 24.04.
 
+Alternate setup tested with the above setup, but flashes to board done using the addendum steps.
+
 ### Step 1: Build
 
 There are two builds. The simple build reads an expression piped in on stdin and only needs `main.cpp`:
@@ -176,6 +178,23 @@ quartus_pgm -c 1 -m jtag -o "p;sop.sof@1"
 2) Output:`LEDR0` shows F, and on means 1.
 
 Repeat steps 2-5 to generate new verilog code and flash the board.
+
+### MacOS Addendum
+
+On linux box, convert .sof to .rbf
+```bash
+quartus_cpf --option=bitstream_compression=off -c sop.sof sop.rbf
+```
+
+On MacOS, connect to board and ensure proper detection
+```bash
+openFPGALoader -c usb-blaster --detect
+```
+
+Flash .rbf file to board from MacOS
+```bash
+openFPGALoader -c usb-blaster sop.rbf
+```
 
 ### Notes
 

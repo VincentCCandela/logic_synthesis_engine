@@ -23,6 +23,30 @@ vector<string> splitWords(const string &line)
     return words;
 }
 
+// //output of a built in gate for one row of its truth table
+// //ones is how many of the gate's inputs are 1, count is how many inputs it has
+// bool gateOutput(const string &type, int ones, int count){
+//     if(type == "and" || type == "buf"){
+//         return ones == count;
+//     }
+//     else if(type == "nand"){
+//         return ones != count;
+//     }
+//     else if(type == "or"){
+//         return ones > 0;
+//     }
+//     else if(type == "nor" || type == "not"){
+//         return ones == 0;
+//     }
+//     else if(type == "xor"){
+//         return ones % 2 == 1;
+//     }
+//     else if(type == "xnor"){
+//         return ones % 2 == 0;
+//     }
+//     throw runtime_error("unknown gate '" + type + "'");
+// }
+
 // construct a BLIF circuit from text
 BlifCircuit parseBlif(const vector<string> &lines)
 {
@@ -68,6 +92,36 @@ BlifCircuit parseBlif(const vector<string> &lines)
                 circuit.nodes.push_back(move(node));
                 currentNode = &circuit.nodes.back();
             }
+            // else if(directive == ".gate"){
+            //     //the gate type comes first, then its inputs, and its output is last
+            //     if(args.size() < 3){
+            //         throw runtime_error(".gate needs a type, an input, and an output");
+            //     }
+            //     BlifNode node;
+            //     node.output = args.back();
+            //     node.inputs.assign(args.begin() + 1, args.end() - 1);
+            //     //try every row of the gate's truth table and keep the rows where it outputs 1
+            //     //the node ends up with the same rows a hand written truth table would have
+            //     const int count = node.inputs.size();
+            //     for(int row = 0; row < (1 << count); ++row){
+            //         BlifCube cube;
+            //         cube.output = true;
+            //         int ones = 0;
+            //         for(int i = 0; i < count; ++i){
+            //             if((row >> i) & 1){
+            //                 cube.inputs += '1';
+            //                 ++ones;
+            //             }
+            //             else{
+            //                 cube.inputs += '0';
+            //             }
+            //         }
+            //         if(gateOutput(args[0], ones, count)){
+            //             node.cubes.push_back(cube);
+            //         }
+            //     }
+            //     circuit.nodes.push_back(node);
+            // }
             continue;
         }
 

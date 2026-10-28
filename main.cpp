@@ -25,7 +25,7 @@ int max_minterm;       // mask with a bit set for every variable
 int num_vars;
 
 // fpga pins of the slide switches sw[0] to sw[9] on the cyclone v gx starter kit
-std::vector<std::string> switch_pins{"AC9", "AE10", "AD13", "AC8", "W11", "AB10", "V10", "AC10", "Y11", "AE19"};
+// std::vector<std::string> switch_pins{"AC9", "AE10", "AD13", "AC8", "W11", "AB10", "V10", "AC10", "Y11", "AE19"};
 
 // which bit holds the variable, the last variable is bit 0
 int position(char variable)
@@ -265,26 +265,50 @@ bool is_essential(Cube prime, const std::vector<Cube> &prime_implicants)
 }
 
 // true if every on-set minterm of truth_table is covered by some cube in cover
-bool coversAll(const std::vector<Cube> &cover, const std::vector<bool> &truth_table)
-{
-    for (int minterm = 0; minterm <= max_minterm; ++minterm)
-    {
-        if (!truth_table[minterm])
-        { // is irrelevant(false bc not in onset)
+bool coversAll(const std::vector<Cube> &cover, const std::vector<bool> &truth_table){
+    for (int minterm = 0; minterm <= max_minterm; ++minterm){
+        if (!truth_table[minterm]){ // is irrelevant(false bc not in onset)
             continue;
         }
         bool covered = false;
-        for (const Cube &cube : cover)
-        {
-            if (covers(cube, minterm))
-            {
+        for (const Cube &cube : cover){
+            if (covers(cube, minterm)){
                 covered = true;
                 break;
             }
         }
-        if (!covered)
-        {
+        if (!covered){
             return false;
+        }
+    }
+    return true;
+}
+
+
+//true if every on-set minterm shares a cube in cover with each of its on-set neighbors (ie one bit is flipped)
+//lack of coverage causes glitches where f wrongly goes to zero
+bool hazard_free(const std::vector<Cube>&cover, const std::vector<bool>&truth_table){
+    //for every onset minterm with onset neighbors, make sure that there is a cube in the cover
+    //that covers both
+    for(int minterm = 0; minterm <= max_minterm; ++minterm){
+        if(!truth_table[minterm]){//skip if in offset
+            continue;
+        }
+        for(char variable : variables){
+            int neighbor = minterm ^ bit(variable);//the same minterm with this one variable flipped
+            if(!truth_table[neighbor]){//skip if in offset
+                continue;
+            }
+            bool shared = false;
+            for(Cube cube : cover){
+                if(covers(cube, minterm) && covers(cube, neighbor)){ //covers minterm and neigbor so we are good
+                    shared = true;
+                    break;
+                }
+            }
+            if(!shared){//not shared so this is bad
+                return false;
+            }
         }
     }
     return true;
@@ -324,7 +348,8 @@ void split(const std::vector<Cube> &prime_implicants, std::vector<Cube> &essenti
     }
 }
 
-std::vector<Cube> minimize(const std::vector<bool> &truth_table, const std::vector<Cube> &essential_primes, const std::vector<Cube> &nonessential_primes)
+std::vector<Cube> minimize(const std::vector<bool> &truth_table, const std::vector<Cube> &essential_primes, 
+    const std::vector<Cube> &nonessential_primes, bool avoid_hazards = false)
 {
     std::vector<Cube> best = essential_primes;
     for (Cube prime : nonessential_primes)
@@ -346,7 +371,8 @@ std::vector<Cube> minimize(const std::vector<bool> &truth_table, const std::vect
                 cover.push_back(nonessential_primes[i]);
             }
         }
-        if (coversAll(cover, truth_table) && literal(cover) < literal(best))
+        if (coversAll(cover, truth_table) && literal(cover) < literal(best) && 
+            (!avoid_hazards || hazard_free(cover, truth_table)))
         {
             best = cover;
         }
@@ -476,23 +502,23 @@ std::string verilog_top(std::vector<std::vector<std::string>> all_connections)
 
 // quartus settings that put module sop on the cyclone v gx starter kit
 // the pins and i/o standards come from the terasic c5g user manual
-std::string quartus_settings()
-{
-    std::string text;
-    text += "set_global_assignment -name FAMILY \"Cyclone V\"\n";
-    text += "set_global_assignment -name DEVICE 5CGXFC5C6F27C7\n";
-    text += "set_global_assignment -name TOP_LEVEL_ENTITY sop\n";
-    text += "set_global_assignment -name VERILOG_FILE sop.v\n";
-    for (int i = 0; i < num_vars; ++i)
-    {
-        std::string sw = "SW[" + std::to_string(i) + "]";
-        text += "set_location_assignment PIN_" + switch_pins[i] + " -to " + sw + "\n";
-        text += "set_instance_assignment -name IO_STANDARD \"1.2 V\" -to " + sw + "\n";
-    }
-    text += "set_location_assignment PIN_F7 -to LEDR[0]\n";
-    text += "set_instance_assignment -name IO_STANDARD \"2.5 V\" -to LEDR[0]\n";
-    return text;
-}
+// std::string quartus_settings()
+// {
+//     std::string text;
+//     text += "set_global_assignment -name FAMILY \"Cyclone V\"\n";
+//     text += "set_global_assignment -name DEVICE 5CGXFC5C6F27C7\n";
+//     text += "set_global_assignment -name TOP_LEVEL_ENTITY sop\n";
+//     text += "set_global_assignment -name VERILOG_FILE sop.v\n";
+//     for (int i = 0; i < num_vars; ++i)
+//     {
+//         std::string sw = "SW[" + std::to_string(i) + "]";
+//         text += "set_location_assignment PIN_" + switch_pins[i] + " -to " + sw + "\n";
+//         text += "set_instance_assignment -name IO_STANDARD \"1.2 V\" -to " + sw + "\n";
+//     }
+//     text += "set_location_assignment PIN_F7 -to LEDR[0]\n";
+//     text += "set_instance_assignment -name IO_STANDARD \"2.5 V\" -to LEDR[0]\n";
+//     return text;
+// }
 
 // writes text into the file called name, false if it could not be written
 bool write_file(std::string name, std::string text)
@@ -802,6 +828,7 @@ int main(int argc, char *argv[])
         std::vector<Cube> inverse_essential_primes, inverse_nonessential_primes;
         split(primes(inverse_truth_table), inverse_essential_primes, inverse_nonessential_primes);
         std::vector<Cube> minimized_sop = minimize(truth_table, essential_primes, nonessential_primes);
+        std::vector<Cube> hazard_free_sop = minimize(truth_table, essential_primes, nonessential_primes, true);
 
         std::cout << "Canonical SOP: F=" << sop(minterms(on_set)) << "\n";
         std::cout << "Canonical POS: F=" << pos(minterms(off_set)) << "\n";
@@ -813,8 +840,9 @@ int main(int argc, char *argv[])
         std::cout << "Essential prime implicants: " << products(essential_primes, ", ", "none") << "\n";
         std::cout << "On-set minterms: m(" << numbers(on_set) << ")\n";
         std::cout << "Off-set maxterms: M(" << numbers(off_set) << ")\n";
+        std::cout << "Hazard-free SOP: F=" << sop(hazard_free_sop) << "\n";
 
-        std::cout << "Estimated delay (gates on the slowest path): " << delay(minimized_sop) << "\n";
+        std::cout << "Estimated delay (gates on the slowest path): " << delay(hazard_free_sop) << "\n";
 
         connections.resize(outputs.size());
         if (write_file(outputs[i] + "_truth_table.csv", truth_table_csv(truth_table)))
@@ -827,11 +855,13 @@ int main(int argc, char *argv[])
         }
 
         // structural verilog of the minimized sop plus a quartus project for the cyclone v gx starter kit
-        if (variables.size() > switch_pins.size())
+        // if (variables.size() > switch_pins.size())
+        if(variables.size() > 10)
         {
-            std::cerr << "Structural Verilog: not written, the board only has " << switch_pins.size() << " slide switches\n";
+            // std::cerr << "Structural Verilog: not written, the board only has " << switch_pins.size() << " slide switches\n";
+            std::cerr << "Structural Verilog: not written, the board only has " << 10 << " slide switches\n";
         }
-        else if (write_file("sop_" + std::to_string(i) + ".v", verilog(minimized_sop, i, &connections[i])))
+        else if (write_file("sop_" + std::to_string(i) + ".v", verilog(hazard_free_sop, i, &connections[i])))
         {
             std::cout << "Structural Verilog: wrote sop.v, open sop.qpf in Quartus to put it on the Cyclone V GX board\n";
         }
